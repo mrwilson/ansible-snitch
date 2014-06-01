@@ -3,11 +3,32 @@
 from ansible.module_utils.basic import *
 from ansible.module_utils.urls  import *
 
+DOCUMENTATION = '''
+module: snitch
+short_description: Notify Dead Man's Snitches
+description:
+  - Update snitches created at https://deadmanssnitch.com/
+version_added: "1.0"
+author: Alex Wilson
+requirements:
+  - urllib2
+  - urlparse
+options:
+  name:
+    description:
+      - Code for the snitch to be updated e.g.https://nosnch.in/<code>
+    required: true
+'''
+
+EXAMPLES = '''
+- snitch: name=some_snitch_code
+'''
+
 def main():
   module = AnsibleModule(
     argument_spec = dict(
-        name      = dict(required=True),
-        message   = dict(),
+      name  = dict(required=True),
+      msg   = dict(),
     )
   )
 
@@ -20,6 +41,6 @@ def main():
   if response['status'] != 200:
     module.fail_json(msg='Unable to notify snitch - %s' % snitch)
   else:
-    module.exit_json(msg='Successfully updated snitch')
+    module.exit_json(changed=True, msg='Successfully updated snitch')
 
 main()
