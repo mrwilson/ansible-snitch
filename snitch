@@ -4,12 +4,13 @@ from ansible.module_utils.basic import *
 from ansible.module_utils.urls  import *
 
 DOCUMENTATION = '''
+---
 module: snitch
 short_description: Notify Dead Man's Snitches
 description:
   - Update snitches created at https://deadmanssnitch.com/
-version_added: "1.0"
 author: Alex Wilson
+version_added: "1.6"
 requirements:
   - urllib2
   - urlparse
@@ -18,25 +19,36 @@ options:
     description:
       - Code for the snitch to be updated e.g.https://nosnch.in/<code>
     required: true
+  msg:
+    description:
+      - Additional message to send with the update
+    required: false
 '''
 
 EXAMPLES = '''
 - snitch: name=some_snitch_code
+
+- snitch: name=some_snitch_code msg=Update successful
 '''
 
 def main():
   module = AnsibleModule(
     argument_spec = dict(
-      name  = dict(required=True),
-      msg   = dict(),
+      name = dict(required=True),
+      msg  = dict(required=False),
     )
   )
 
-  snitch = module.params.get('name')
+  snitch  = module.params.get('name')
+  message = module.params.get('msg')
+  data    = None
+
+  if message:
+    data = "m=%s" % message
 
   url = 'https://nosnch.in/%s' % snitch
 
-  _, response = fetch_url(module, url)
+  _, response = fetch_url(module, url, data)
 
   if response['status'] != 200:
     module.fail_json(msg='Unable to notify snitch - %s' % snitch)
