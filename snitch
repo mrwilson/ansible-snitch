@@ -1,0 +1,25 @@
+#!/usr/bin/python
+
+from ansible.module_utils.basic import *
+from ansible.module_utils.urls  import *
+
+def main():
+  module = AnsibleModule(
+    argument_spec = dict(
+        name      = dict(required=True),
+        message   = dict(),
+    )
+  )
+
+  snitch = module.params.get('name')
+
+  url = 'https://nosnch.in/%s' % snitch
+
+  _, response = fetch_url(module, url)
+
+  if response['status'] != 200:
+    module.fail_json(msg='Unable to notify snitch - %s' % snitch)
+  else:
+    module.exit_json(msg='Successfully updated snitch')
+
+main()
